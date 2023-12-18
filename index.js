@@ -1,12 +1,12 @@
 /** OpenAI setup **/
-// import OpenAI from "openai"
-// const openai = new OpenAI({
-//     dangerouslyAllowBrowser: true
-// })
+import OpenAI from "openai"
+const openai = new OpenAI({
+    dangerouslyAllowBrowser: true
+})
 
 /** HuggingFace setup **/
 import { HfInference } from '@huggingface/inference'
-const hf = new HfInference()
+const hf = new HfInference(process.env.HUGGING_FACE_TOKEN)
 import { blobToBase64 } from '/utils'
 
 const dialogModal = document.getElementById('dialog-modal')
@@ -47,15 +47,21 @@ async function generateAltText(imageUrl) {
     *
     * 🎁 hint.md for help!
     **/
-    renderImage(imageUrl) 
+    const textToGenerate = "an ai generated christmas alt text"
+    const response = await hf.textGeneration({
+    inputs: textToGenerate,
+    model: "HuggingFaceH4/zephyr-7b-beta"
+})
+    console.log("HF:", response)
+    renderImage(imageUrl, response) 
 }
 
 function renderImage(imageUrl, altText) {
-    console.log(altText)
+    console.log(altText.generated_text)
     const imageContainer = document.getElementById('image-container')
     imageContainer.innerHTML = ''
     const image = document.createElement('img')
     image.src = imageUrl
-    image.alt = altText
+    image.alt = altText.generated_text
     imageContainer.appendChild(image)
 }
